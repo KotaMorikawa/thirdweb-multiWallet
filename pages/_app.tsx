@@ -1,16 +1,45 @@
 import type { AppProps } from "next/app";
-import { ThirdwebProvider } from "@thirdweb-dev/react";
+import {
+  ThirdwebProvider,
+  localWallet,
+  smartWallet,
+  metamaskWallet,
+} from "@thirdweb-dev/react";
 import "../styles/globals.css";
+import Layout from "../components/Layout";
 
 // This is the chain your dApp will work on.
 // Change this to the chain your app is built for.
 // You can also import additional chains from `@thirdweb-dev/chains` and pass them directly.
-const activeChain = "ethereum";
+const activeChain = "mumbai";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ThirdwebProvider activeChain={activeChain}>
-      <Component {...pageProps} />
+    <ThirdwebProvider
+      activeChain={activeChain}
+      supportedWallets={[
+        localWallet(),
+        metamaskWallet(),
+        smartWallet({
+          factoryAddress: process.env.NEXT_PUBLIC_FACTORY_ADDRESS!,
+          thirdwebApiKey: process.env.NEXT_PUBLIC_API_KEY!,
+          gasless: true,
+          personalWallets: [metamaskWallet()],
+        }),
+      ]}
+      // sdkOptionsを設定したらsmartwalletでprovider.sendエラー
+      sdkOptions={{
+        gasless: {
+          openzeppelin: {
+            relayerUrl:
+              "https://api.defender.openzeppelin.com/autotasks/3b245433-8325-471a-aebd-eb23b5c85edf/runs/webhook/f3b6258d-e33b-47d8-b00b-1fc91cf829f1/Lg1MySPu2mBMMaWGvcW3Pq",
+          },
+        },
+      }}
+    >
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
     </ThirdwebProvider>
   );
 }
