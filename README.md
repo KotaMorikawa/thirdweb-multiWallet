@@ -32,6 +32,8 @@ npm run dev
 ### smartWallet と gasless の設定をした localWallet を同時に設定するとエラー起きる。
 
 ```bash
+_app.tsx
+
 <ThirdwebProvider
   activeChain={activeChain}
   supportedWallets={[
