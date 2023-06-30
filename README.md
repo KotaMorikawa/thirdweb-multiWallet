@@ -1,35 +1,60 @@
 ## Getting Started
 
-Create a project using this example:
+thirdweb 上で NFT、AccountFactory のコントラクトを作成。
+
+・NFT コントラクトは NFTDrop コントラクトを使用。
+
+・AccountFactory は [Simple Wallet Factory（beta）](https://thirdweb.com/thirdweb.eth/AccountFactory/1.1.1)コントラクトを使用。thirdweb の smartWallet で [AA(EIP-4337)](https://eips.ethereum.org/EIPS/eip-4337)を使用するため。
+
+・localWallet で gaslessTransaction を実行するため、[Openzeppelin Defender](https://defender.openzeppelin.com) を使用。
+
+- Relayer 作成(代わりにガスを払う)
+- Autotask で localWallet がミントする際、Relayer がガス代を払うことを設定。
+
+## env ファイル作成
 
 ```bash
-npx thirdweb create --template next-typescript-starter
+NEXT_PUBLIC_FACTORY_ADDRESS=[AccountFactoryコントラクトアドレス]
+NEXT_PUBLIC_API_KEY=[thirdwebAPIKEY]
+NEXT_PUBLIC_RELAYER_URL=[Openzeppelin DefenderのAutotaskURL]
 ```
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-On `pages/_app.tsx`, you'll find our `ThirdwebProvider` wrapping your app, this is necessary for our [hooks](https://portal.thirdweb.com/react) and
-[UI Components](https://portal.thirdweb.com/ui-components) to work.
-
-### Deploy to IPFS
-
-Deploy a copy of your application to IPFS using the following command:
+## アプリの実行
 
 ```bash
-yarn deploy
+npm install
+
+npm run dev
 ```
 
-## Learn More
+## 注意
 
-To learn more about thirdweb and Next.js, take a look at the following resources:
+### smartWallet と gasless の設定をした localWallet を同時に設定するとエラー起きる。
 
-- [thirdweb React Documentation](https://docs.thirdweb.com/react) - learn about our React SDK.
-- [thirdweb TypeScript Documentation](https://docs.thirdweb.com/typescript) - learn about our JavaScript/TypeScript SDK.
-- [thirdweb Portal](https://docs.thirdweb.com) - check our guides and development resources.
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-
-You can check out [the thirdweb GitHub organization](https://github.com/thirdweb-dev) - your feedback and contributions are welcome!
-
-## Join our Discord!
-
-For any questions, suggestions, join our discord at [https://discord.gg/thirdweb](https://discord.gg/thirdweb).
+```bash
+<ThirdwebProvider
+  activeChain={activeChain}
+  supportedWallets={[
+    localWallet(),
+    metamaskWallet(),
+    smartWallet({
+      factoryAddress: process.env.NEXT_PUBLIC_FACTORY_ADDRESS!,
+      thirdwebApiKey: process.env.NEXT_PUBLIC_API_KEY!,
+      gasless: true,
+      personalWallets: [metamaskWallet()],
+      }),
+      ]}
+  // sdkOptionsを設定したらsmartwalletでprovider.sendエラー
+  sdkOptions={{
+    gasless: {
+      openzeppelin: {
+        relayerUrl: process.env.NEXT_PUBLIC_RELAYER_URL!,
+          },
+        },
+      }}
+  >
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
+</ThirdwebProvider>
+```

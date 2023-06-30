@@ -31,8 +31,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       sdkOptions={{
         gasless: {
           openzeppelin: {
-            relayerUrl:
-              "https://api.defender.openzeppelin.com/autotasks/3b245433-8325-471a-aebd-eb23b5c85edf/runs/webhook/f3b6258d-e33b-47d8-b00b-1fc91cf829f1/Lg1MySPu2mBMMaWGvcW3Pq",
+            relayerUrl: process.env.NEXT_PUBLIC_RELAYER_URL!,
           },
         },
       }}
